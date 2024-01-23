@@ -3,9 +3,9 @@
 SELECT
     *
 FROM
-    studenti
+    `students`
 WHERE
-    YEAR(data_di_nascita) = 1990;
+    YEAR(`date_of_birth`) = 1990;
 
 2. Selezionare tutti i corsi che valgono più di 10 crediti (479)
 
@@ -24,6 +24,8 @@ FROM
     `students`
 WHERE
     YEAR(CURDATE()) - YEAR(`date_of_birth`) > 30;
+
+    TIMESTAMPDIFF(YEAR, `date_of_birth`, CURDATE()) > 30;
 
 4. Selezionare tutti i corsi del primo semestre del primo anno di un qualsiasi corso di
 laurea (286)
@@ -54,10 +56,12 @@ FROM
 WHERE
     `level` = "magistrale";
 
+    `name` LIKE "%magistrale%" contiene magistrale nel nome
+
 7. Da quanti dipartimenti è composta l'università? (12)
 
 SELECT
-    COUNT(id) AS num_of_departments
+    COUNT(`id`) AS `num_of_departments`
 FROM
     `departments`
 WHERE
@@ -66,8 +70,8 @@ WHERE
 8. Quanti sono gli insegnanti che non hanno un numero di telefono? (50)
 
 SELECT
-    *
+    COUNT(`id`) AS `theachers_no_phone`
 FROM
     `teachers`
 WHERE
-    `phone` IS NOT NULL
+    `phone` IS NULL
