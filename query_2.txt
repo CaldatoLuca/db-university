@@ -22,10 +22,12 @@ GROUP BY `office_address`
 3. Calcolare la media dei voti di ogni appello d'esame
 
 SELECT
-    `exam_id`, FLOOR(AVG(`vote`))
+    `exam_id`,
+    FLOOR(AVG(`vote`)) AS `voto_medio`
 FROM
     `exam_student`
-GROUP BY `exam_id`
+GROUP BY
+    `exam_id`
 
 -----------------------------------------------------------------------------
 
@@ -106,8 +108,29 @@ GROUP BY `degrees`.`name`;
 6. Selezionare tutti i docenti che insegnano nel Dipartimento di
 Matematica (54)
 
+//raggruppo per id per evitare doppioni (stesso dipartiemnto ma corsi diversi)
 SELECT
-   `teachers`.`name`, `teachers`.`surname`, `departments`.`name` AS `nome_dipartimento`
+    `teachers`.`id`,
+    `teachers`.`name`,
+    `teachers`.`surname`,
+    `departments`.`name` AS `nome_dipartimento`
+FROM
+    `teachers`
+INNER JOIN `course_teacher` ON `course_teacher`.`teacher_id` = `teachers`.`id`
+INNER JOIN `courses` ON `course_teacher`.`course_id` = `courses`.`id`
+INNER JOIN `degrees` ON `degrees`.`id` = `courses`.`degree_id`
+INNER JOIN `departments` ON `departments`.`id` = `degrees`.`department_id`
+WHERE
+    `departments`.`name` = "Dipartimento di Matematica"
+GROUP BY
+    `teachers`.`id`
+
+//raggruppa le linee uguali, quelle dei vari corsi, non visti ma creano linee in più
+SELECT DISTINCT
+    `teachers`.`id`,
+    `teachers`.`name`,
+    `teachers`.`surname`,
+    `departments`.`name` AS `nome_dipartimento`
 FROM
     `teachers`
 INNER JOIN `course_teacher` ON `course_teacher`.`teacher_id` = `teachers`.`id`
@@ -122,3 +145,22 @@ WHERE
 7. BONUS: Selezionare per ogni studente il numero di tentativi sostenuti
 per ogni esame, stampando anche il voto massimo. Successivamente,
 filtrare i tentativi con voto minimo 18.
+
+//HAVING come WHERE ma usato dopo il raggruppamento
+SELECT
+    `students`.`id`,
+    `students`.`name`,
+    `students`.`surname`,
+    `courses`.`name`,
+    COUNT(`exam_student`.`vote`) AS `numero_tentativi`,
+    MAX(`exam_student`.`vote`) AS `voto_massimo`
+FROM
+    `students`
+INNER JOIN `exam_student` ON `students`.`id` = `exam_student`.`student_id`
+INNER JOIN `exams` ON `exam_student`.`exam_id` = `exams`.`id`
+INNER JOIN `courses` ON `exams`.`course_id` = `courses`.`id`
+GROUP BY
+    `students`.`id`,
+    `courses`.`id`
+HAVING
+    `voto_massimo` >= 18
